@@ -50,6 +50,8 @@ export function App() {
 					)
 				})}
 			</div>
+			<p>Made by pvinis</p>
+			<p><a href="https://github.com/pvinis/crypto-icons-data">repo</a></p>
 		</div>
 	)
 }
