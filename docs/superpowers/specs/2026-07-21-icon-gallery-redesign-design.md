@@ -158,7 +158,8 @@ shift. `decoding="async"`.
 
 - **Hover** → copy-URL and download buttons fade in
 - **Click** → detail sheet: large preview, name / symbol / id, colour swatch (click to copy hex),
-  all three size URLs, link to CoinGecko
+  both image URLs (the 64px thumbnail and the untouched original — those are the only two artefacts
+  the pipeline produces per icon), link to CoinGecko
 - Labels auto-hide at Compact and Dense — below ~30px the label costs more room than it earns
 
 Touch has no hover, so on coarse pointers the actions render persistently rather than on hover.
