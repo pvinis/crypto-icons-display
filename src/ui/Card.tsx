@@ -20,6 +20,24 @@ async function copyToClipboard(text: string): Promise<boolean> {
 	}
 }
 
+async function downloadOriginal(url: string, filename: string): Promise<void> {
+	try {
+		const response = await fetch(url)
+		if (!response.ok) return
+		const blob = await response.blob()
+		const objectUrl = URL.createObjectURL(blob)
+		const anchor = document.createElement("a")
+		anchor.href = objectUrl
+		anchor.download = filename
+		document.body.appendChild(anchor)
+		anchor.click()
+		anchor.remove()
+		URL.revokeObjectURL(objectUrl)
+	} catch {
+		// Network/permission failure — silently no-op; the copy-URL action remains available.
+	}
+}
+
 export function Card({ row, density, wash, onSelect }: CardProps) {
 	const showLabel = density === "comfortable" || density === "cosy"
 
@@ -57,9 +75,14 @@ export function Card({ row, density, wash, onSelect }: CardProps) {
 				>
 					⧉
 				</button>
-				<a href={getOriginalUrl(row)} download aria-label="Download original icon" data-testid="download-button">
+				<button
+					type="button"
+					aria-label="Download original icon"
+					data-testid="download-button"
+					onClick={() => downloadOriginal(getOriginalUrl(row), `${row.id}.${row.ext}`)}
+				>
 					⇩
-				</a>
+				</button>
 			</div>
 		</div>
 	)
