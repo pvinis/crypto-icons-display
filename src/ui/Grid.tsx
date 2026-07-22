@@ -5,6 +5,7 @@ import { DENSITY_STEPS, type Density, type Wash } from "../lib/prefs"
 import { Card } from "./Card"
 
 const GAP = 12
+const ROW_PADDING = 12 // matches the .icon-grid-row horizontal padding in src/index.css
 const LABEL_HEIGHT = 44
 const NO_LABEL_HEIGHT = 16
 
@@ -31,7 +32,8 @@ export function Grid({ rows, density, wash, onSelect }: GridProps) {
 	}, [])
 
 	const cardWidth = DENSITY_STEPS[density]
-	const columns = Math.max(1, Math.floor((containerWidth + GAP) / (cardWidth + GAP)))
+	const availableWidth = Math.max(0, containerWidth - 2 * ROW_PADDING)
+	const columns = Math.max(1, Math.floor((availableWidth + GAP) / (cardWidth + GAP)))
 	const rowCount = Math.ceil(rows.length / columns)
 	const showLabels = density === "comfortable" || density === "cosy"
 	const rowHeight = cardWidth + (showLabels ? LABEL_HEIGHT : NO_LABEL_HEIGHT)
