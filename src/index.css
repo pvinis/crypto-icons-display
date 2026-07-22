@@ -29,3 +29,45 @@ body {
 	color: var(--fg);
 	font-family: var(--font-mono);
 }
+
+.icon-grid-row {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(var(--card), 1fr));
+	gap: 12px;
+	padding: 0 12px;
+}
+
+.icon-card {
+	position: relative;
+	border-radius: 12px;
+	overflow: hidden;
+	background-image: radial-gradient(
+		circle at 50% 35%,
+		color-mix(in srgb, var(--wash-color) calc(var(--wash-opacity) * 100%), transparent) 0%,
+		transparent 72%
+	);
+}
+
+.card-actions {
+	opacity: 0;
+	transition: opacity 120ms ease;
+}
+.icon-card:hover .card-actions,
+.icon-card:focus-within .card-actions {
+	opacity: 1;
+}
+@media (hover: none) {
+	.card-actions {
+		opacity: 1;
+	}
+}
+
+.icon-fallback-label {
+	display: none;
+}
+.icon-fallback .icon-fallback-label {
+	display: inline;
+}
+.icon-fallback {
+	background: var(--border);
+}
