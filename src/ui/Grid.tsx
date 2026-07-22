@@ -59,34 +59,36 @@ export function Grid({ rows, density, wash, onSelect }: GridProps) {
 
 	return (
 		<div ref={scrollRef} style={{ height: "calc(100vh - 64px)", overflow: "auto" }} data-testid="icon-grid">
-			<div style={{ height: virtualizer.getTotalSize(), position: "relative", width: "100%" }}>
-				{virtualizer.getVirtualItems().map((virtualRow) => {
-					const start = virtualRow.index * columns
-					const rowItems = rows.slice(start, start + columns)
-					const style = {
-						position: "absolute",
-						top: 0,
-						left: 0,
-						width: "100%",
-						transform: `translateY(${virtualRow.start}px)`,
-						"--card": `${cardWidth}px`,
-					} as CSSProperties
+			{containerWidth > 0 ? (
+				<div style={{ height: virtualizer.getTotalSize(), position: "relative", width: "100%" }}>
+					{virtualizer.getVirtualItems().map((virtualRow) => {
+						const start = virtualRow.index * columns
+						const rowItems = rows.slice(start, start + columns)
+						const style = {
+							position: "absolute",
+							top: 0,
+							left: 0,
+							width: "100%",
+							transform: `translateY(${virtualRow.start}px)`,
+							"--card": `${cardWidth}px`,
+						} as CSSProperties
 
-					return (
-						<div
-							key={virtualRow.key}
-							data-index={virtualRow.index}
-							ref={virtualizer.measureElement}
-							className="icon-grid-row"
-							style={style}
-						>
-							{rowItems.map((row) => (
-								<Card key={row.id} row={row} density={density} wash={wash} onSelect={onSelect} />
-							))}
-						</div>
-					)
-				})}
-			</div>
+						return (
+							<div
+								key={virtualRow.key}
+								data-index={virtualRow.index}
+								ref={virtualizer.measureElement}
+								className="icon-grid-row"
+								style={style}
+							>
+								{rowItems.map((row) => (
+									<Card key={row.id} row={row} density={density} wash={wash} onSelect={onSelect} />
+								))}
+							</div>
+						)
+					})}
+				</div>
+			) : null}
 		</div>
 	)
 }
