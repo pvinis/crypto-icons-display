@@ -1,65 +1,107 @@
-import { useEffect, useState } from "react"
+import { useDeferredValue, useEffect, useState } from "react"
+import { fetchManifest, type IconRow } from "./lib/manifest"
+import { getManifestUrl } from "./lib/urls"
+import { searchIcons } from "./lib/search"
+import {
+	getDensity,
+	getTheme,
+	getWash,
+	resolveEffectiveTheme,
+	setDensity,
+	setTheme,
+	setWash,
+	type Density,
+	type ThemePref,
+	type Wash,
+} from "./lib/prefs"
+import { Controls } from "./ui/Controls"
+import { Grid } from "./ui/Grid"
+import { Detail } from "./ui/Detail"
 
-type SymbolIdMap = Record<
-	string,
-	Array<{
-		id: string
-		alexa: number | null
-		gecko_rank: number | null
-		gecko_score: number
-		community_score: number
-		image: {
-			thumb: string
-			small: string
-			large: string
-		}
-	}>
->
+type LoadState = { status: "loading" } | { status: "error"; message: string } | { status: "ready"; rows: IconRow[] }
 
 export function App() {
-	const [symbolIdMap, setSymbolIdMap] = useState<SymbolIdMap>({})
-	const [searchText, setSearchText] = useState("")
+	const [state, setState] = useState<LoadState>({ status: "loading" })
+	const [query, setQuery] = useState("")
+	const deferredQuery = useDeferredValue(query)
+	const [density, setDensityState] = useState<Density>(() => getDensity())
+	const [wash, setWashState] = useState<Wash>(() => getWash())
+	const [theme, setThemeState] = useState<ThemePref>(() => getTheme())
+	const [selected, setSelected] = useState<IconRow | null>(null)
+
+	const load = () => {
+		fetchManifest(getManifestUrl())
+			.then((result) => setState({ status: "ready", rows: result.rows }))
+			.catch((error: Error) => setState({ status: "error", message: error.message }))
+	}
+
+	useEffect(load, [])
 
 	useEffect(() => {
-		const doIt = async () => {
-			const response = await fetch(
-				"https://raw.githubusercontent.com/pvinis/crypto-icons-data/main/data/symbol-id-map.json"
-			)
-			setSymbolIdMap(await response.json())
-		}
-		doIt()
-	}, [])
+		document.documentElement.setAttribute("data-theme", resolveEffectiveTheme(theme))
+		if (theme !== "system") return
+		const media = matchMedia("(prefers-color-scheme: dark)")
+		const onChange = () => document.documentElement.setAttribute("data-theme", resolveEffectiveTheme("system"))
+		media.addEventListener("change", onChange)
+		return () => media.removeEventListener("change", onChange)
+	}, [theme])
+
+	const handleDensityChange = (value: Density) => {
+		setDensity(value)
+		setDensityState(value)
+	}
+	const handleWashChange = (value: Wash) => {
+		setWash(value)
+		setWashState(value)
+	}
+	const handleThemeChange = (value: ThemePref) => {
+		setTheme(value)
+		setThemeState(value)
+	}
+
+	if (state.status === "loading") {
+		return (
+			<div className="grid h-screen place-items-center">
+				<p>Loading icons…</p>
+			</div>
+		)
+	}
+
+	if (state.status === "error") {
+		return (
+			<div className="grid h-screen place-items-center gap-4">
+				<p>Couldn't load the icon manifest: {state.message}</p>
+				<button
+					type="button"
+					className="border border-[var(--border)] px-4 py-2"
+					onClick={() => {
+						setState({ status: "loading" })
+						load()
+					}}
+				>
+					Retry
+				</button>
+			</div>
+		)
+	}
+
+	const visibleRows = searchIcons(state.rows, deferredQuery)
 
 	return (
-		<div className="bg-gray-400 font-mono">
-			<h1 className="text-4xl mb-6">Crypto Icons Display</h1>
-			<p>Made by pvinis</p>
-			<a href="https://github.com/pvinis/crypto-icons-data">GitHub repo</a>
-			<h4>Count: {Object.keys(symbolIdMap).length}</h4>
-			<input
-				type="text"
-				className="border"
-				placeholder="Search"
-				value={searchText}
-				onChange={(e) => setSearchText(e.target.value)}
+		<div className="min-h-screen">
+			<Controls
+				query={query}
+				onQueryChange={setQuery}
+				density={density}
+				onDensityChange={handleDensityChange}
+				wash={wash}
+				onWashChange={handleWashChange}
+				theme={theme}
+				onThemeChange={handleThemeChange}
+				resultCount={visibleRows.length}
 			/>
-
-			<div className="flex flex-wrap">
-				{Object.keys(symbolIdMap)
-					.filter((symbol) => symbol.toLowerCase().includes(searchText.toLowerCase()))
-					.map((symbol) => {
-						const image =
-							"https://raw.githubusercontent.com/pvinis/crypto-icons-data/main/data/icons/large/" +
-							symbolIdMap[symbol][0].image.large
-
-						return (
-							<div key={symbol} className="flex flex-col border w-[80px] items-center pb-2">
-								<p>{symbol}</p>
-								<img className="w-[60px] h-[60px] rounded-full" src={image}></img>
-							</div>
-						)
-					})}
-			</div>
+			<Grid rows={visibleRows} density={density} wash={wash} onSelect={setSelected} />
+			{selected ? <Detail row={selected} onClose={() => setSelected(null)} /> : null}
 		</div>
 	)
 }
