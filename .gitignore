@@ -15,6 +15,12 @@ dist-ssr
 vite.config.d.ts
 vite.config.js
 
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
