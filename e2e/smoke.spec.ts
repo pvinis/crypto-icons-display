@@ -12,8 +12,8 @@ test("loads the grid, narrows via search, and copies a thumbnail URL", async ({ 
 
 	await page.locator('[data-testid="search-input"]').fill("bitcoin")
 	await expect(page.locator('[data-testid="icon-card"]').first()).toBeVisible()
-	const narrowedCount = await page.locator('[data-testid="icon-card"]').count()
-	expect(narrowedCount).toBeLessThan(initialCount)
+	// useDeferredValue lands the filtered results on a later render — poll until the count settles below the baseline.
+	await expect.poll(() => page.locator('[data-testid="icon-card"]').count()).toBeLessThan(initialCount)
 
 	await page.locator('[data-testid="copy-thumb-button"]').first().click()
 	const copied = await page.evaluate(() => navigator.clipboard.readText())
