@@ -35,7 +35,9 @@ describe("urls", () => {
 	})
 
 	it("throws a clear error when the tag was never resolved", () => {
-		vi.unstubAllEnvs()
+		// Stub to empty rather than unstubbing: a generated .env.local (from the
+		// prebuild step) would otherwise leak VITE_DATA_TAG into the test env.
+		vi.stubEnv("VITE_DATA_TAG", "")
 		expect(() => getThumbUrl(row)).toThrow(/VITE_DATA_TAG/)
 	})
 })
