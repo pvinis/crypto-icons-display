@@ -1,0 +1,90 @@
+import { useEffect, useRef, useState, type CSSProperties } from "react"
+import { useVirtualizer } from "@tanstack/react-virtual"
+import type { IconRow } from "../lib/manifest"
+import { DENSITY_STEPS, type Density, type Wash } from "../lib/prefs"
+import { Card } from "./Card"
+
+const GAP = 12
+const LABEL_HEIGHT = 44
+const NO_LABEL_HEIGHT = 16
+
+type GridProps = {
+	rows: IconRow[]
+	density: Density
+	wash: Wash
+	onSelect: (row: IconRow) => void
+}
+
+export function Grid({ rows, density, wash, onSelect }: GridProps) {
+	const scrollRef = useRef<HTMLDivElement>(null)
+	const [containerWidth, setContainerWidth] = useState(0)
+
+	useEffect(() => {
+		const el = scrollRef.current
+		if (!el) return
+		const observer = new ResizeObserver((entries) => {
+			const entry = entries[0]
+			if (entry) setContainerWidth(entry.contentRect.width)
+		})
+		observer.observe(el)
+		return () => observer.disconnect()
+	}, [])
+
+	const cardWidth = DENSITY_STEPS[density]
+	const columns = Math.max(1, Math.floor((containerWidth + GAP) / (cardWidth + GAP)))
+	const rowCount = Math.ceil(rows.length / columns)
+	const showLabels = density === "comfortable" || density === "cosy"
+	const rowHeight = cardWidth + (showLabels ? LABEL_HEIGHT : NO_LABEL_HEIGHT)
+
+	const virtualizer = useVirtualizer({
+		count: rowCount,
+		getScrollElement: () => scrollRef.current,
+		estimateSize: () => rowHeight,
+		overscan: 4,
+	})
+
+	useEffect(() => {
+		virtualizer.measure()
+	}, [columns, rowHeight, virtualizer])
+
+	if (rows.length === 0) {
+		return (
+			<div className="p-12 text-center text-[var(--muted)]">
+				<p>No icons match your search.</p>
+			</div>
+		)
+	}
+
+	return (
+		<div ref={scrollRef} style={{ height: "calc(100vh - 64px)", overflow: "auto" }} data-testid="icon-grid">
+			<div style={{ height: virtualizer.getTotalSize(), position: "relative", width: "100%" }}>
+				{virtualizer.getVirtualItems().map((virtualRow) => {
+					const start = virtualRow.index * columns
+					const rowItems = rows.slice(start, start + columns)
+					const style = {
+						position: "absolute",
+						top: 0,
+						left: 0,
+						width: "100%",
+						transform: `translateY(${virtualRow.start}px)`,
+						"--card": `${cardWidth}px`,
+					} as CSSProperties
+
+					return (
+						<div
+							key={virtualRow.key}
+							data-index={virtualRow.index}
+							ref={virtualizer.measureElement}
+							className="icon-grid-row"
+							style={style}
+						>
+							{rowItems.map((row) => (
+								<Card key={row.id} row={row} density={density} wash={wash} onSelect={onSelect} />
+							))}
+						</div>
+					)
+				})}
+			</div>
+		</div>
+	)
+}
