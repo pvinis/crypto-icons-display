@@ -1,7 +1,7 @@
 import { writeFile, readFile } from "node:fs/promises"
 
 const TAG_RE = /^data-\d{4}-\d{2}-\d{2}$/
-const TAGS_API = "https://api.github.com/repos/pvinis/crypto-icons-data/tags"
+const TAGS_API = "https://api.github.com/repos/pvinis/crypto-icons-data/tags?per_page=100"
 const FALLBACK_FILE = new URL("../data-tag.fallback.json", import.meta.url)
 const ENV_FILE = new URL("../.env.local", import.meta.url)
 
@@ -32,7 +32,7 @@ async function main() {
 	const resolved = await resolveViaGitHub()
 	const tag = resolved ?? (await resolveFallback())
 	if (!resolved) {
-		console.warn(`resolve-data-tag: GitHub API resolution failed, falling back to committed tag "${tag}"`)
+		console.warn(`resolve-data-tag: no data-* tag resolved from the GitHub API, falling back to committed tag "${tag}"`)
 	}
 	await writeFile(ENV_FILE, `VITE_DATA_TAG=${tag}\n`)
 	console.log(`resolve-data-tag: using "${tag}"`)
