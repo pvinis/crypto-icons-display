@@ -4,3 +4,8 @@
 [build]
   command = "bun run build"
   publish = "dist"
+
+# Vite 8 / @vitejs/plugin-react require Node ^20.19 || >=22.12. Netlify's
+# legacy default here was Node 18, which fails the build — pin a supported LTS.
+[build.environment]
+  NODE_VERSION = "22"
