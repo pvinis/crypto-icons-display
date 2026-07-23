@@ -1,0 +1,6 @@
+# Pin the build so the prebuild step (scripts/resolve-data-tag.ts) runs and
+# writes .env.local with VITE_DATA_TAG before vite build. Without `bun run
+# build`, the tag is undefined at runtime and the site renders blank.
+[build]
+  command = "bun run build"
+  publish = "dist"
