@@ -34,7 +34,7 @@ export function Controls({
 				placeholder="Search by name, symbol, or id"
 				value={query}
 				onChange={(event) => onQueryChange(event.target.value)}
-				className="rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5"
+				className="w-80 max-w-full rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5"
 				data-testid="search-input"
 			/>
 			<span className="text-sm text-[var(--muted)]">{resultCount.toLocaleString()} icons</span>
