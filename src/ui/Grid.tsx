@@ -6,8 +6,8 @@ import { Card } from "./Card"
 
 const GAP = 12
 const ROW_PADDING = 12 // matches the .icon-grid-row horizontal padding in src/index.css
-const LABEL_HEIGHT = 44
-const NO_LABEL_HEIGHT = 16
+const FULL_LABEL_HEIGHT = 44 // name, may wrap to 2 lines (comfortable/cosy)
+const COMPACT_LABEL_HEIGHT = 26 // name, single truncated line (compact/dense)
 
 type GridProps = {
 	rows: IconRow[]
@@ -35,8 +35,8 @@ export function Grid({ rows, density, wash, onSelect }: GridProps) {
 	const availableWidth = Math.max(0, containerWidth - 2 * ROW_PADDING)
 	const columns = Math.max(1, Math.floor((availableWidth + GAP) / (cardWidth + GAP)))
 	const rowCount = Math.ceil(rows.length / columns)
-	const showLabels = density === "comfortable" || density === "cosy"
-	const rowHeight = cardWidth + (showLabels ? LABEL_HEIGHT : NO_LABEL_HEIGHT)
+	const bigLabel = density === "comfortable" || density === "cosy"
+	const rowHeight = cardWidth + (bigLabel ? FULL_LABEL_HEIGHT : COMPACT_LABEL_HEIGHT)
 
 	const virtualizer = useVirtualizer({
 		count: rowCount,

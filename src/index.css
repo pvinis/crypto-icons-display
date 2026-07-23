@@ -62,6 +62,37 @@ body {
 	}
 }
 
+/* Token symbol, revealed on hover as a pill overlaid at the bottom of the card. */
+.card-symbol {
+	position: absolute;
+	left: 50%;
+	bottom: 6px;
+	transform: translateX(-50%);
+	max-width: calc(100% - 12px);
+	padding: 1px 8px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	background: var(--fg);
+	color: var(--bg);
+	opacity: 0;
+	transition: opacity 120ms ease;
+	pointer-events: none;
+}
+.icon-card:hover .card-symbol,
+.icon-card:focus-within .card-symbol {
+	opacity: 1;
+}
+
+/* Native buttons default to the arrow cursor; make every clickable button show a finger. */
+button:not(:disabled) {
+	cursor: pointer;
+}
+
 .icon-fallback-label {
 	display: none;
 }

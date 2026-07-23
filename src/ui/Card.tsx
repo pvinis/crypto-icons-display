@@ -39,7 +39,7 @@ async function downloadOriginal(url: string, filename: string): Promise<void> {
 }
 
 export function Card({ row, density, wash, onSelect }: CardProps) {
-	const showLabel = density === "comfortable" || density === "cosy"
+	const bigLabel = density === "comfortable" || density === "cosy"
 
 	const style = {
 		"--wash-color": `#${row.colourHex}`,
@@ -53,7 +53,7 @@ export function Card({ row, density, wash, onSelect }: CardProps) {
 
 	return (
 		<div className="icon-card group flex flex-col items-center p-3" style={style} data-testid="icon-card">
-			<button type="button" className="flex flex-col items-center gap-2" onClick={() => onSelect(row)}>
+			<button type="button" className="flex w-full min-w-0 flex-col items-center gap-2" onClick={() => onSelect(row)}>
 				<img
 					src={getThumbUrl(row)}
 					alt={row.name}
@@ -64,14 +64,23 @@ export function Card({ row, density, wash, onSelect }: CardProps) {
 					onError={handleImageError}
 				/>
 				<span className="icon-fallback-label text-xs font-semibold">{row.symbol.toUpperCase()}</span>
-				{showLabel ? <span className="text-xs text-[var(--muted)]">{row.name}</span> : null}
+				<span
+					className={
+						bigLabel
+							? "text-center text-xs text-[var(--muted)]"
+							: "w-full truncate text-center text-[10px] leading-tight text-[var(--muted)]"
+					}
+				>
+					{row.name}
+				</span>
 			</button>
+			<span className="card-symbol">{row.symbol.toUpperCase()}</span>
 			<div className="card-actions absolute right-2 top-2 flex gap-1">
 				<button
 					type="button"
-					aria-label="Copy thumbnail URL"
-					data-testid="copy-thumb-button"
-					onClick={() => copyToClipboard(getThumbUrl(row))}
+					aria-label="Copy symbol"
+					data-testid="copy-symbol-button"
+					onClick={() => copyToClipboard(row.symbol)}
 				>
 					⧉
 				</button>

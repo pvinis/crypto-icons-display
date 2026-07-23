@@ -17,7 +17,7 @@ export const WASH_STEPS: Record<Wash, number> = {
 }
 
 export const DEFAULT_DENSITY: Density = "cosy"
-export const DEFAULT_WASH: Wash = "medium"
+export const DEFAULT_WASH: Wash = "light"
 export const DEFAULT_THEME: ThemePref = "system"
 
 const DENSITY_KEY = "cid.density"

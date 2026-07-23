@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test"
 
-test("loads the grid, narrows via search, and copies a thumbnail URL", async ({ page, context }) => {
+test("loads the grid, narrows via search, and copies the token symbol", async ({ page, context }) => {
 	await context.grantPermissions(["clipboard-read", "clipboard-write"])
 
 	await page.goto("/")
@@ -15,7 +15,10 @@ test("loads the grid, narrows via search, and copies a thumbnail URL", async ({ 
 	// useDeferredValue lands the filtered results on a later render — poll until the count settles below the baseline.
 	await expect.poll(() => page.locator('[data-testid="icon-card"]').count()).toBeLessThan(initialCount)
 
-	await page.locator('[data-testid="copy-thumb-button"]').first().click()
+	await page.locator('[data-testid="copy-symbol-button"]').first().click()
 	const copied = await page.evaluate(() => navigator.clipboard.readText())
-	expect(copied).toMatch(/^https:\/\/cdn\.jsdelivr\.net\/gh\/pvinis\/crypto-icons-data@.+\/data\/icons\/thumb64\/.+\.webp$/)
+	// The card copy action yields the token symbol (e.g. "btc"), not a URL.
+	expect(copied.length).toBeGreaterThan(0)
+	expect(copied).not.toMatch(/https?:\/\//)
+	expect(copied).toMatch(/^[\w.-]+$/)
 })
